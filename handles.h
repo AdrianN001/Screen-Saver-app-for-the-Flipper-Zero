@@ -83,7 +83,7 @@ static App* app_alloc() {
 	app->view_dispatcher = view_dispatcher_alloc();
 	view_dispatcher_enable_queue(app->view_dispatcher);	
     	view_dispatcher_set_event_callback_context(app->view_dispatcher, app); 						// sets the paramter void* context to the app
-    	view_dispatcher_set_custom_event_callback(app->view_dispatcher, screen_saver_custom_callback);  		// sets the custom event callback (l. 32) as the def. callback
+    	view_dispatcher_set_custom_event_callback(app->view_dispatcher, screen_saver_custom_callback);  		// sets the custom event callback (l. 36) as the def. callback
     	view_dispatcher_set_navigation_event_callback( app->view_dispatcher, screen_saver_back_event_callback );	// sets the back b. event callback (l. 42 ) as the def. callback
     	
     	
