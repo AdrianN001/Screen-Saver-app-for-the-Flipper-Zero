@@ -4,4 +4,4 @@
 typedef enum {
 	ScreenSaverWidgetView,
 	ScreenSaverTextInputView,
-} ScreenSaverViews
+} ScreenSaverViews;

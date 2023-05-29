@@ -6,6 +6,16 @@
 #include <gui/modules/widget.h>
 #include <gui/modules/text_input.h>
 
+#define MAX_HEIGHT			60    // Flipper's display size
+#define MAX_WIDTH			110
+#define BLANK_SPACE			" "
+#define NEW_LINE			"\n"
+#define DELAY				100   // 10 fps
+
+#define randint(min, max) \
+        ((rand() % (int)(((max) + 1) - (min))) + (min))
+
+
 typedef struct screen_saver_state {
 	char* current_string;
 	size_t current_string_length;
@@ -15,7 +25,7 @@ typedef struct screen_saver_state {
 	int y_position;
 	
 	
-	SceneManger* scene_manager;
+	SceneManager* scene_manager;
 	ViewDispatcher* view_dispatcher;
 	Widget *widget;
 	TextInput* text_input;
@@ -24,3 +34,9 @@ typedef struct screen_saver_state {
 // Defined in the handles.h
 static App* app_alloc();
 static void app_free();
+
+int string_size(char* str){
+	int size = 0;	
+	while( *str++ != '\0') { size++; }
+	return size;
+}

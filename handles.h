@@ -1,10 +1,20 @@
 #pragma once
 #include "state.h"
+#include "animation.h"
 #include "scenes.h"
 #include "views.h"
 
 void screen_saver_animation_on_enter(void *context){
-	UNUSED(context);
+	furi_assert(context);
+	
+	App* app = context;
+	
+	widget_reset(app->widget);
+	
+	view_dispatcher_switch_to_view(app->view_dispatcher, ScreenSaverWidgetView);
+	
+	animate_text_in_the_box(app);
+	
 }
 
 bool screen_saver_animation_on_event(void *context, SceneManagerEvent event){
@@ -14,7 +24,7 @@ bool screen_saver_animation_on_event(void *context, SceneManagerEvent event){
 }
 
 void screen_saver_animation_on_exit(void *context){
-	UNUSED(context)
+	UNUSED(context);
 }
 
 void screen_saver_text_input_on_enter(void *context){
@@ -28,7 +38,7 @@ bool screen_saver_text_input_on_event(void *context, SceneManagerEvent event){
 }
 
 void screen_saver_text_input_on_exit(void *context){
-	UNUSED(context)
+	UNUSED(context);
 }
 
 /* 			Custom event handlers  						*/
@@ -47,34 +57,52 @@ bool screen_saver_back_event_callback(void *context) {
 
 /* 			Arrays of the event handlers 					*/
 
-void (*const screen_saver_on_enter_handlers[])(*void) = {
+void (*const screen_saver_on_enter_handlers[])(void* context) = {
 	screen_saver_animation_on_enter,
 	screen_saver_text_input_on_enter
-}
+};
 
-bool (*const screen_saver_on_event_handlers[])(*void, SceneMangerEvent) = {
+bool (*const screen_saver_on_event_handlers[])(void* context, SceneManagerEvent) = {
 	screen_saver_animation_on_event,
 	screen_saver_text_input_on_event
-}
+};
 
-void (*const screen_saver_on_exit_handlers[])(*void) = {
+void (*const screen_saver_on_exit_handlers[])(void* context) = {
 	screen_saver_animation_on_exit,
 	screen_saver_text_input_on_exit
-}
+};
 
-static const SceneManagerHandlers screen_saver_scene_manager_handlers = {
+const SceneManagerHandlers screen_saver_scene_manager_handlers = {
 	.on_enter_handlers = screen_saver_on_enter_handlers,
 	.on_event_handlers = screen_saver_on_event_handlers,
 	.on_exit_handlers  = screen_saver_on_exit_handlers,
 	.scene_num         = ScreenSaverSceneCount
-}
+};
 
 /* 			Constructor for the App						*/
 
 
 static App* app_alloc() {
+	srand(123242324);    												// Not the best seed :/
 	App* app = malloc(sizeof(App));
 	
+	app->current_string = (char*)"Hack the World";
+	
+#ifdef STRING
+	app->current_string_length = (int)strlen(app->current_string); 
+#else
+	app->current_string_length = string_size(app->current_string);
+#endif
+#ifdef STDLIB
+	app->horizontal_velocity = randint(1,10) % 2 ? 1 : -1;
+	app->vertical_velocity = randint(1,10) % 2 ? 1 : -1;
+#else
+	app->horizontal_velocity = 1;
+	app->vertical_velocity = -1;
+#endif
+
+	app->x_position = MAX_HEIGHT / 2;
+	app->y_position = MAX_WIDTH / 2;
 															// Scene Manager switches between the pages
 	app->scene_manager = scene_manager_alloc(					
 		&screen_saver_scene_manager_handlers,
@@ -91,7 +119,7 @@ static App* app_alloc() {
     	// Enums serve as IDs
     	app->widget = widget_alloc();											
     	view_dispatcher_add_view(
-    		app->view_dispather,
+    		app->view_dispatcher,
     		ScreenSaverWidgetView,										
     		widget_get_view(app->widget));
     	
@@ -113,9 +141,11 @@ static void app_free(App* app){
 
 	// Frees the different components of the app	
 	scene_manager_free(app->scene_manager);
-	view_dispacther_free(app->view_dispatcher);
+	view_dispatcher_free(app->view_dispatcher);
 	widget_free(app->widget);
 	text_input_free(app->text_input);
+	
+	free(app->current_string);
 
 
 	free(app);
