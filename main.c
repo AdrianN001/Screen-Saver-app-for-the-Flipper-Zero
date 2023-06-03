@@ -17,7 +17,7 @@ int screen_saver_entry(void *p){
 	// Set the first scene
 	scene_manager_next_scene(
 		app->scene_manager,
-		ScreenSaverWidgetView);
+		ScreenSaverInputScene);
 		
 	view_dispatcher_run(app->view_dispatcher);
 	

@@ -1,8 +1,17 @@
 #pragma once
 #include "state.h"
+#include "event.h"
 #include "animation.h"
 #include "scenes.h"
 #include "views.h"
+
+
+
+void screen_saver_text_input_callback(void* context) {
+    App* app = context;
+    scene_manager_handle_custom_event(app->scene_manager,
+       Screen_Saver_InputSceneSaveEvent);
+}
 
 void screen_saver_animation_on_enter(void *context){
 	furi_assert(context);
@@ -24,17 +33,44 @@ bool screen_saver_animation_on_event(void *context, SceneManagerEvent event){
 }
 
 void screen_saver_animation_on_exit(void *context){
-	UNUSED(context);
+	App* app = context;
+
+	int* temp = 0;
+	*temp = 23;
+
+    widget_reset(app->widget);
 }
 
+
+
 void screen_saver_text_input_on_enter(void *context){
-	UNUSED(context);
+	furi_assert(context);
+    App* app = context;
+    bool clear_text = true;
+	int max_text_size = 20;
+    text_input_reset(app->text_input);
+    text_input_set_header_text(app->text_input, "Enter the text");
+    text_input_set_result_callback(
+        app->text_input,
+        screen_saver_text_input_callback,
+        app,
+        app->current_string,
+        max_text_size,
+        clear_text);
+    view_dispatcher_switch_to_view(app->view_dispatcher, ScreenSaverTextInputView);
 }
 
 bool screen_saver_text_input_on_event(void *context, SceneManagerEvent event){
-	UNUSED(context);
-	UNUSED(event);
-	return 0;
+	furi_assert(context);
+	App* app = context;
+    
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == Screen_Saver_InputSceneSaveEvent) {
+            scene_manager_next_scene(app->scene_manager, ScreenSaverAnimationScene);
+            return true;
+        }
+    }
+    return false;
 }
 
 void screen_saver_text_input_on_exit(void *context){
