@@ -1,5 +1,5 @@
 #include <furi.h>
-#include "state.h"
+#include "app.h"
 #include "handles.h"
 
 int screen_saver_entry(void *p){
